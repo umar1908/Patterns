@@ -66,6 +66,9 @@ public:
 };
 
 class ChangePassword:public AbstractVisitor{
+public:
+  virtual ~ChangePassword()=default;
+private:
   virtual void visit(FacebookApi* api) const override {
     api->FacebookSendRequest("Change Facebook Password ******");
   }
