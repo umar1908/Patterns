@@ -4,14 +4,23 @@
 
 class AbstractPublisher;
 
-// СДЕЛАТЬ ДЕСТРУКТОРЫ ВИРТУАЛЬНЫМИ!
-// ПРОВЕРИТЬ OVERRIDE и CONST
+//Абстрактный класс наблюдателя
 class AbstractObserver{
+protected:
+  std::string name;
 public:
+
+  AbstractObserver(std::string _name):name(_name){};
+
   virtual void update(const AbstractPublisher*)=0;
-  // virtual AbstractObserver
+
+  std::string GetName() const{
+    return name;
+  }
+
 };
 
+//Абстрактный класс издателя
 class AbstractPublisher{
 protected:
   std::string name;
@@ -32,22 +41,30 @@ public:
    virtual std::string GetText() const=0;
 
    virtual void SetText(const std::string&) =0;
+
+   virtual ~AbstractPublisher()=default;
 };
 
+//Конкретизированный класс издателя
 class Publisher:public AbstractPublisher{
 public:
+
+  virtual ~Publisher()=default;
+
   virtual void Attach(AbstractObserver* observer) override{
    if (std::find(subs.begin(),subs.end(), observer)==subs.end()){
      subs.push_back(observer);
-     std::cout<<"\nAttached!\n";
+     std::cout<<observer->GetName()<<" has sunscribed to "<<GetName()<<"\n\n";
    }
  }
 
  virtual void Detach(AbstractObserver* observer) override {
   subs.remove(observer);
+  std::cout<<observer->GetName()<<" has unsunscribed from "<<GetName()<<"\n\n";
 }
 
   virtual void Notify() const override {
+    std::cout<<GetName()<<" notified his subscribers!\n\n";
     for(const auto& elem:subs){
       elem->update(this);
     }
@@ -65,47 +82,63 @@ public:
     name=_name;
   }
 
-  virtual std::string GetName() const{
+  virtual std::string GetName() const override{
     return name;
   }
 
 };
 
-
+//Конкретизированный класс наблюдателя
 class Observer:public AbstractObserver{
 private:
-  std::string name;
-public:
-  virtual void update(const AbstractPublisher* publisher){
-    std::cout<<"The new message has been received from :"<<publisher->GetName()<<"\nText:\n"<<publisher->GetText()<<std::endl;
-  }
 
+public:
+
+  virtual ~Observer()=default;
+
+  Observer(std::string _name="Nnnamed"):AbstractObserver(_name){};
+
+
+  virtual void update(const AbstractPublisher* publisher) override{
+    std::cout<<name<<": The new message has been received from: "<<publisher->GetName()<<"\nText:\n"<<publisher->GetText()<<"\n\n";
+  }
 
 };
 
 
+
 int main(){
+  //Создание экземпляров издателя
   Publisher p1,p2;
   p1.SetName("Publisher1");
   p2.SetName("Publisher2");
 
-  Observer sub1,sub2;
+  //Создание экземпляров наблюдателей
+  Observer sub1("Subscriber 1"),sub2("Subscriber 2");
 
+  //Подписка на первое издание
   p1.Attach(&sub1);
-  p2.Attach(&sub2);
+  p1.Attach(&sub2);
 
+  //Изменение текста сообщения
+  p1.SetText("Test message 1");
+  p2.SetText("Test message 2");
 
-  p1.SetText("Text1");
-  p2.SetText("Text2");
-
+  //Уведомление подписчиков
   p1.Notify();
   p2.Notify();
 
+  //Отписка первого наблюдателя от первого издания
   p1.Detach(&sub1);
-  p2.Detach(&sub2);
 
+  //Уведомление подписчиков первого издания
   p1.Notify();
+
+  //Подписка второго наблюдателя на второго издателя
+  p2.Attach(&sub2);
+  //Уведомление подписчиков первого и второго издателя
   p2.Notify();
+  p1.Notify();
 
 
   return 0;
