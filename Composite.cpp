@@ -9,13 +9,21 @@ protected:
   Node* parent;
 public:
   Node(std::string _ip):ip(_ip),parent(nullptr){};
+
   virtual ~Node()=default;
+
   virtual void SetParent(Node*) = 0;
+
   virtual Node* GetParent() const = 0;
+
   virtual void Add(Node*) = 0;
+
   virtual void Remove(Node*) = 0;
+
   virtual std::string operator()() const=0;
+
   virtual bool isComputer()const=0;
+
   virtual void info() const=0;
 };
 
@@ -130,7 +138,7 @@ int main(){
   Client(r1);
   Client(r2);
   Client(c5);
-  
+
 
   return 0;
 }
