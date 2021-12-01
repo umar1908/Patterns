@@ -3,6 +3,8 @@
 #include<string>
 #include<algorithm>
 
+
+//Абстрактный класс композита
 class Node{
 protected:
   std::string ip;
@@ -27,9 +29,10 @@ public:
   virtual void info() const=0;
 };
 
-
+//Подтип ноды не содержащей внутри себя других нод
 class Computer:public Node{
 public:
+
   Computer(std::string _ip):Node(_ip){};
 
   virtual ~Computer()=default;
@@ -64,16 +67,20 @@ public:
 
 };
 
+//Подтип ноды содержащей внутри себя другие
 class Router:public Node{
 private:
   std::list<Node*> childs;
 public:
+
   Router(std::string _ip):Node(_ip){};
+
   virtual ~Router()=default;
 
   virtual void SetParent(Node* _parent) override {
     parent=_parent;
   }
+
   virtual Node* GetParent() const override {
     return parent;
   }
@@ -88,6 +95,8 @@ public:
   virtual void Remove(Node* child) override {
     childs.remove(child);
   }
+
+
   virtual std::string operator()() const override {
     std::string buffer{};
     for(const auto&  elem: childs){
@@ -95,6 +104,7 @@ public:
     }
     return ip+"\n"+buffer;
   }
+
   virtual bool isComputer()const override {
     return false;
   }
@@ -105,6 +115,7 @@ public:
 
 };
 
+//Имитация внешнего пользователя классом
 void Client(const Node& node){
   std::cout<<"Current node info:\n";
   node.info();
@@ -116,6 +127,8 @@ void Client(const Node& node){
 
 
 int main(){
+
+  //Создание узлов
   Router r1("192.168.1.1");
   Router r2("192.168.1.2");
   Router r3("192.168.1.3");
@@ -126,6 +139,7 @@ int main(){
   Computer c5("192.168.2.5");
   Computer c6("192.168.2.6");
 
+  //Объединение узлов в древовидную сеть
   r1.Add(&c1);
   r1.Add(&c2);
   r1.Add(&r2);
@@ -135,6 +149,7 @@ int main(){
   r2.Add(&r3);
   r3.Add(&c6);
 
+  //Запуск имитации стороннего кода
   Client(r1);
   Client(r2);
   Client(c5);
